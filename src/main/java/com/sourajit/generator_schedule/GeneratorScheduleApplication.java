@@ -1,6 +1,7 @@
 package com.sourajit.generator_schedule;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -35,6 +36,8 @@ public class GeneratorScheduleApplication {
 				}
 				repo.save(gen); // cascade saves the schedules too
 			}
+			repo.save(new Generator("Unit-4", "COAL", 400)); // new gen to check ineer join and left join
+
 		};
 	}
 
@@ -58,4 +61,37 @@ public class GeneratorScheduleApplication {
 		});
 	}
 
+	@Bean
+	@Order(4)
+	CommandLineRunner nPlusOneDemo(GeneratorRepository repo, TransactionTemplate tx) {
+		return args -> tx.executeWithoutResult(status -> {
+			List<Generator> all = repo.findAll();
+			for (Generator g : all) {
+				System.out.println(g.getName() + " has " + g.getSchedules().size() + " schedules");
+			}
+		});
+	}
+
+	@Bean
+	@Order(5)
+	CommandLineRunner joinFetchDemo(GeneratorRepository repo, TransactionTemplate tx) {
+		return args -> tx.executeWithoutResult(status -> {
+			List<Generator> all = repo.findAllWithSchedules();
+			System.out.println("join fetch solution");
+			for (Generator g : all) {
+				System.out.println(g.getName() + " has " + g.getSchedules().size() + " schedules");
+			}
+		});
+	}
+
+	@Bean
+	@Order(6)
+	CommandLineRunner entityGraphDemo(GeneratorRepository repo, TransactionTemplate tx) {
+		return args -> tx.executeWithoutResult(status -> {
+			System.out.println("entity graph solution");
+			for (Generator g : repo.findAllWithGraph()) {
+				System.out.println(g.getName() + " has " + g.getSchedules().size() + " schedules");
+			}
+		});
+	}
 }

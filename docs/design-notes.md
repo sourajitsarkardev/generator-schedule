@@ -15,3 +15,7 @@
 Collections are lazy by default. The query for them runs on first access.
 Accessing them after the session closes throws LazyInitializationException.
 Fixes: @Transactional, JOIN FETCH or @EntityGraph, or a DTO projection. Avoid FetchType.EAGER as a blanket fix.
+
+EAGER @ManyToOne loads the generator with a join on every schedule load, even when unused.
+LAZY defers the generator query until a field is accessed.
+Prefer LAZY and fetch what you need with JOIN FETCH or @EntityGraph.
