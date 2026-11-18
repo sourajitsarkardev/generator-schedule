@@ -6,10 +6,13 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.annotation.Order;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import com.sourajit.generator_schedule.model.Generator;
 import com.sourajit.generator_schedule.model.Schedule;
 import com.sourajit.generator_schedule.repository.GeneratorRepository;
+import com.sourajit.generator_schedule.repository.ScheduleRepository;
 
 @SpringBootApplication
 public class GeneratorScheduleApplication {
@@ -19,6 +22,7 @@ public class GeneratorScheduleApplication {
 	}
 
 	@Bean
+	@Order(1)
 	CommandLineRunner demo(GeneratorRepository repo) {
 		return args -> {
 			for (int i = 1; i <= 3; i++) {
@@ -33,4 +37,25 @@ public class GeneratorScheduleApplication {
 			}
 		};
 	}
+
+	@Bean
+	@Order(2)
+	CommandLineRunner lazyDemo(GeneratorRepository repo, TransactionTemplate tx) {
+		return args -> tx.executeWithoutResult(status -> {
+			Generator g = repo.findById(1L).get();
+			System.out.println("Loaded generator: " + g.getName());
+			System.out.println("Schedules: " + g.getSchedules().size());
+		});
+	}
+
+	@Bean
+	@Order(3)
+	CommandLineRunner eagerDemo(ScheduleRepository scheduleRepo, TransactionTemplate tx) {
+		return args -> tx.executeWithoutResult(status -> {
+			Schedule s = scheduleRepo.findById(1L).get();
+			System.out.println("Loaded schedule date: " + s.getScheduleDate());
+			System.out.println("Generator: " + s.getGenerator().getName());
+		});
+	}
+
 }

@@ -11,3 +11,7 @@
 **Interface Segregation:** No class should be forced to implement methods it doesn't use, so prefer several small interfaces over one large one. Small interfaces are also easier to mock in tests.
 
 **Dependency Inversion:** High-level code depends on abstractions, not concrete classes. `demo` depends on the `GeneratorRepository` interface, and Spring injects the implementation at runtime, so it can be swapped or mocked.
+
+Collections are lazy by default. The query for them runs on first access.
+Accessing them after the session closes throws LazyInitializationException.
+Fixes: @Transactional, JOIN FETCH or @EntityGraph, or a DTO projection. Avoid FetchType.EAGER as a blanket fix.
