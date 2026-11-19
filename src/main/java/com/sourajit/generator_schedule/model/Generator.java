@@ -5,6 +5,8 @@ import java.util.List;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -27,19 +29,20 @@ import jakarta.persistence.CascadeType;
 public class Generator {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    private Long id;
 
     @NotBlank
     @Column(nullable = false)
-    String name;
+    private String name;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    String fuelType;
+    private FuelType fuelType;
 
     @Positive
-    double capacityMw;
+    private double capacityMw;
 
-    public Generator(String name, String fuelType, double capacityMw) {
+    public Generator(String name, FuelType fuelType, double capacityMw) {
         this.name = name;
         this.fuelType = fuelType;
         this.capacityMw = capacityMw;

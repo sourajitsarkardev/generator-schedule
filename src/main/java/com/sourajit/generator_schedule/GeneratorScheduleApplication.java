@@ -2,6 +2,7 @@ package com.sourajit.generator_schedule;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Random;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -10,10 +11,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.core.annotation.Order;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import com.sourajit.generator_schedule.model.FuelType;
 import com.sourajit.generator_schedule.model.Generator;
 import com.sourajit.generator_schedule.model.Schedule;
 import com.sourajit.generator_schedule.repository.GeneratorRepository;
 import com.sourajit.generator_schedule.repository.ScheduleRepository;
+import com.sourajit.generator_schedule.service.ScheduleService;
 
 @SpringBootApplication
 public class GeneratorScheduleApplication {
@@ -26,8 +29,10 @@ public class GeneratorScheduleApplication {
 	@Order(1)
 	CommandLineRunner demo(GeneratorRepository repo) {
 		return args -> {
+			Random random = new Random();
 			for (int i = 1; i <= 3; i++) {
-				Generator gen = new Generator("Unit-" + i, i == 2 ? "HYDRO" : "COAL", 100 * i);
+				FuelType fuelType = FuelType.values()[random.nextInt(FuelType.values().length)];
+				Generator gen = new Generator("Unit-" + i, fuelType, 100 * i);
 				for (int d = -1; d < 2; d++) {
 					Schedule sch = new Schedule();
 					sch.setScheduleDate(LocalDate.now().plusDays(d));
@@ -36,7 +41,7 @@ public class GeneratorScheduleApplication {
 				}
 				repo.save(gen); // cascade saves the schedules too
 			}
-			repo.save(new Generator("Unit-4", "COAL", 400)); // new gen to check ineer join and left join
+			repo.save(new Generator("Unit-4", FuelType.COAL, 400)); // new gen to check ineer join and left join
 
 		};
 	}
@@ -93,5 +98,26 @@ public class GeneratorScheduleApplication {
 				System.out.println(g.getName() + " has " + g.getSchedules().size() + " schedules");
 			}
 		});
+	}
+
+	@Bean
+	@Order(7)
+	CommandLineRunner validatorDemo(ScheduleService service) {
+		return args -> {
+			Generator g = new Generator("Test-Unit", FuelType.COAL, 100);
+
+			Schedule ok = new Schedule();
+			ok.setScheduledMw(50);
+
+			Schedule tooHigh = new Schedule();
+			tooHigh.setScheduledMw(150);
+
+			Schedule negative = new Schedule();
+			negative.setScheduledMw(-10);
+
+			System.out.println("50 MW valid? " + service.checkValidSchedules(ok, g)); // true
+			System.out.println("150 MW valid? " + service.checkValidSchedules(tooHigh, g)); // false
+			System.out.println("-10 MW valid? " + service.checkValidSchedules(negative, g)); // false
+		};
 	}
 }

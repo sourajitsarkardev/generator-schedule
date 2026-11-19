@@ -2,6 +2,8 @@ package com.sourajit.generator_schedule.model;
 
 import java.time.LocalDate;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -28,10 +30,11 @@ public class Schedule {
 
     @NotNull
     @Column(nullable = false)
-    LocalDate scheduleDate;
+    @DateTimeFormat(pattern = "dd-MM-yyyy")
+    private LocalDate scheduleDate;
 
     @PositiveOrZero
-    double scheduledMw;
+    private double scheduledMw;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "generator_id", nullable = false)
