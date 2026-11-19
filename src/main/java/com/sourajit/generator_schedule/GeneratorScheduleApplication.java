@@ -32,7 +32,7 @@ public class GeneratorScheduleApplication {
 			Random random = new Random();
 			for (int i = 1; i <= 3; i++) {
 				FuelType fuelType = FuelType.values()[random.nextInt(FuelType.values().length)];
-				Generator gen = new Generator("Unit-" + i, fuelType, 100 * i);
+				Generator gen = Generator.of("Unit-" + i, fuelType, 100 * i);
 				for (int d = -1; d < 2; d++) {
 					Schedule sch = new Schedule();
 					sch.setScheduleDate(LocalDate.now().plusDays(d));
@@ -41,7 +41,7 @@ public class GeneratorScheduleApplication {
 				}
 				repo.save(gen); // cascade saves the schedules too
 			}
-			repo.save(new Generator("Unit-4", FuelType.COAL, 400)); // new gen to check ineer join and left join
+			repo.save(Generator.of("Unit-4", FuelType.SOLAR, 50)); // new gen to check ineer join and left join
 
 		};
 	}
@@ -104,7 +104,7 @@ public class GeneratorScheduleApplication {
 	@Order(7)
 	CommandLineRunner validatorDemo(ScheduleService service) {
 		return args -> {
-			Generator g = new Generator("Test-Unit", FuelType.COAL, 100);
+			Generator g = Generator.of("Test-Unit", FuelType.COAL, 100);
 
 			Schedule ok = new Schedule();
 			ok.setScheduledMw(50);
